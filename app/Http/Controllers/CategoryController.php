@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Post;
+use App\Models\Category;
 
 use Illuminate\Http\Request;
 
-class PostController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +14,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::all();
+         return Category::all();
     }
 
     /**
@@ -26,13 +26,10 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
-            'body' => 'required',
-            'category' => 'required',
-            'status' => 'required',
-            'user' => 'required'
+            'category_name' => 'required'
+            
         ]);
-        return Post::create($request->all());
+        return Category::create($request->all());
     }
 
     /**
@@ -43,8 +40,8 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        // console.log( Post::where('id',$id)->get() );
-        return Post::find($id);
+        // console.log( Category::where('id',$id)->get() );
+        return Category::find($id);
     }
     
     /**
@@ -56,9 +53,9 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $post = Post::find($id);
-        $post->update($request->all());
-        return $post;
+        $category = Category::find($id);
+        $category->update($request->all());
+        return $category;
     }
 
     /**
@@ -69,7 +66,7 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        return Post::destroy($id);
+        return Category::destroy($id);
         
     }
 }
