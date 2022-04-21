@@ -18,10 +18,19 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/posts', [PostController::class, 'index']);
 // Route::post('/posts', [PostController::class, 'store']);
 // Route::get('/posts/{$id}', [PostController::class, 'show']);
-Route::resource('v1/posts', PostController::class);
 
-Route::resource('v1/categories', CategoryController::class);
 
+
+
+Route::group(["middleware" => ['auth:sanctum']], function () {
+    Route::resource('v1/posts', PostController::class);
+    Route::resource('v1/categories', CategoryController::class);
+    
+
+});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
