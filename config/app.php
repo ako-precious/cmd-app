@@ -175,8 +175,13 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-    ],
+         Laravel\Sanctum\SanctumServiceProvider::class,
 
+    ],
+    // 'providers' => [
+    // //...
+    // Laravel\Sanctum\SanctumServiceProvider::class,
+    // ],
     /*
     |--------------------------------------------------------------------------
     | Class Aliases
@@ -231,5 +236,6 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
     ],
+    
 
 ];
