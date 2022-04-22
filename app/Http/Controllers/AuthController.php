@@ -32,12 +32,19 @@ class AuthController extends Controller
     }
     public function login(Request $request){
         $registration = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
+            'email' => 'required|string',
+            'password' => 'required|string'
             ]
         );
-        
+
+        //check email address
+        $user = User::where('email', $registration['email'])->first();
+        //check password
+        if(!$user || !Hash::check($registration['password'], $user->password)){
+            return response([
+                'message' => 'Invalid password',
+            ],401);
+        }
         $token = $user->createToken('myapptoken')->plainTextToken;
         $response = [
             'user' => $user,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Post;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 
@@ -14,7 +15,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::all();
+        
+        $name =  auth()->user()->name;
+        $posts = Post::where("user", "=", $name)->get();
+        return $posts;
+        
     }
 
     /**
@@ -43,8 +48,19 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        // console.log( Post::where('id',$id)->get() );
-        return Post::find($id);
+        $name =  auth()->user()->name;
+       $post = Post::where([
+            ['id','=', $id],
+            ["user", "=", $name]])
+            ->get();
+            
+            if ($post->isEmpty()) {
+                 return response([
+                'message' => 'You can not view another user post',
+            ],401);
+            }
+        return $post;
+        // return Post::find($id);
     }
     
     /**
@@ -56,8 +72,17 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $post = Post::find($id);
-        $post->update($request->all());
+         $name =  auth()->user()->name;
+       $post = Post::where([
+            ['id','=', $id],
+            ["user", "=", $name]])
+            ->update($request->all());
+            
+            if ($post->isEmpty()) {
+                 return response([
+                'message' => 'You can not view another user post',
+            ],401);
+            }
         return $post;
     }
 
@@ -69,7 +94,19 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        return Post::destroy($id);
+        $name =  auth()->user()->name;
+        $post = Post::where([
+            ['id','=', $id],
+            ["user", "=", $name]])
+            ->delete();
+            
+            if ($post->isEmpty()) {
+                return response([
+                'message' => 'You can not view another user post',
+            ],401);
+            }
+        return $post;
+        // return Post::destroy($id);
         
     }
 }
