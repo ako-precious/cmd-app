@@ -78,12 +78,15 @@ class PostController extends Controller
             ["user", "=", $name]])
             ->update($request->all());
             
-            if ($post->isEmpty()) {
-                 return response([
-                'message' => 'You can not view another user post',
+            if($post){
+                return $post;
+                
+            }else{
+                return response([
+                'message' => 'You can not edit another user post or the post does not exist',
             ],401);
             }
-        return $post;
+
     }
 
     /**
@@ -100,13 +103,17 @@ class PostController extends Controller
             ["user", "=", $name]])
             ->delete();
             
-            if ($post->isEmpty()) {
+            if ($post) {
                 return response([
-                'message' => 'You can not view another user post',
+                'message' => 'Your post has been deleted',
+            ],201);
+            }
+            else{
+                return response([
+                'message' => 'You can not delete another user post or the post does not exist',
             ],401);
             }
         return $post;
-        // return Post::destroy($id);
         
     }
 }

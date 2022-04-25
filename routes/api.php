@@ -2,6 +2,7 @@
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PasswordResetRequestController;
+use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,18 +18,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/posts', [PostController::class, 'index']);
-// Route::post('/posts', [PostController::class, 'store']);
-// Route::get('/posts/{$id}', [PostController::class, 'show']);
 
- 
-
-Route::post('/v1/register', [AuthController::class, 'register']);
-Route::post('/v1/login', [AuthController::class, 'login']);
-// Route::post('/v1/forgetpassword', [NewPasswordController::class, 'forgotPassword']);
-// Route::post('/v1/reset', [NewPasswordController::class, 'reset']);
-Route::post('/v1/passwordResetLink', [PasswordResetRequestController::class, 'sendEmail']);
-Route::post('resetPassword', 'App\Http\Controllers\ChangePasswordController@passwordResetProcess');
+ Route::group([
+    'middleware' => ['XSS'],
+    'prefix' => 'v1'
+    ], function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('resetpasswordlink', [PasswordResetRequestController::class, 'sendEmail']);
+    Route::post('resetPassword', [ChangePasswordController::class, 'passwordReset']);
+    
+});
 
 Route::group([
     "middleware" => ['auth:sanctum'],
