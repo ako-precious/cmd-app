@@ -72,8 +72,8 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-         $name =  auth()->user()->name;
-       $post = Post::where([
+        $name =  auth()->user()->name;
+        $post = Post::where([
             ['id','=', $id],
             ["user", "=", $name]])
             ->update($request->all());
