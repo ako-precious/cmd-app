@@ -7,8 +7,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Auth\RequestGuard;
+use Laravel\Sanctum\Sanctum;
 class UserLoginTest extends TestCase
 {
     /**
@@ -33,24 +33,44 @@ class UserLoginTest extends TestCase
 
     public function testUserLoginSuccessfully()
     {
-        
-        $user = User::factory()->create();
-                
-        $this->json('POST', 'api/v1/login', [
-                'email' => $user->email,
-                'password' => 'textpass'])
-            ->assertStatus(200);
+        User::create([
+        'name' => 'test',
+        'email'=>'test@gmail.com',
+        'password' => bcrypt('secret1234')
+    ]);
+    $response = $this->json('POST', 'api/v1/login',[
+        'email' => 'test@gmail.com',
+        'password' => 'secret1234',
+    ]);
+    $response->assertStatus(201);
     }
     
     public function testLogoutSuccessfully()
     {
-       $user = ['email' => 'user@test.com', 'password' => 'textpass'];
-        
-        Auth::attempt($user);
-        $accessToken = auth()->user()->token();
-$token= $request->user()->tokens->find($accessToken);
-$token->revoke();
-        $this->json('GET', 'api/v1/logout')
-            ->assertStatus(204);
+    $user =  User::create([
+        'name' => 'test',
+        'email'=>'test@gmail.com',
+        'password' => bcrypt('secret1234')
+    ]);
+        Auth::attempt([
+        'email' => 'test@gmail.com',
+        'password' => 'secret1234',
+    ]);
+        $token = Auth::user()->createToken('nfce_client')->accessToken;
+        $headers = ['Authorization' => "Bearer $token"];
+        $this->json('POST', 'api/v1/logout', [], $headers)
+            ->assertStatus(200);
     }
+
+    public function test_Post_list_can_be_retrieved()
+{
+    Sanctum::actingAs(
+        User::factory()->create(),
+        ['*']
+    );
+ 
+    $response = $this->get('api/v1/posts');
+ 
+    $response->assertOk();
+}
 }

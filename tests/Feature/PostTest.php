@@ -5,12 +5,15 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Post;
  
-// use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\WithFaker;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class PostTest extends TestCase
@@ -21,13 +24,17 @@ class PostTest extends TestCase
      * @return void
      */
       use  RefreshDatabase;
+      use WithoutMiddleware;
 
     protected $user;
 
     public function setUp():void{
         parent::setUp(); 
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user, 'sanctum');
+        
+        $this->user = Sanctum::actingAs(User::factory()->create(),
+    ['*']
+);
+        // $this->actingAs($this->user, 'sanctum');
         
     }
     public function test_posts_create()
@@ -40,19 +47,20 @@ class PostTest extends TestCase
         'user'  => 'john',
         'user_id'  => auth()->id(),
         ];
-        $this->withoutExceptionHandling();
         $response =  $this->json('POST',route('posts.store'), $postForm);
         $response->assertStatus(201);        
     }
-
-    public function test_posts_show(){
     
+    public function test_posts_show(){
+        
+        $this->withoutExceptionHandling();
         $post = Post::factory()->make();
         $this->user->posts()->save($post);
-        $this->withHeaders([
-        'Accept' => 'application/json',
-        'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOi......'
-        ])->get(route('posts.show',$post->id))->assertStatus(200);
+        
+        $token = Auth::user()->createToken('nfce_client')->accessToken;
+        // $token = $this->user->createToken('myapptoken')->plainTextToken;
+        $headers = ['Accept' => 'application/json','Authorization' => "Bearer $token"];
+        $this->get(route('posts.show',$post->id), $headers)->assertStatus(200);
     }
 
     public function test_posts_update(){
